@@ -31,3 +31,7 @@ Päätelaitteiden Default Gatewayn vikasietoisuus on toteutettu ottamalla käytt
 - **VLAN 20 (GUEST) HSRP VIP:** `172.16.X.65/26`
 - **VLAN 30 (MANAGEMENT) HSRP VIP**: `172.16.X.129/26`
 - **VLAN 40 (SERVICES) HSRP VIP**: `172.16.X.193/26`
+
+## Rakennusten välinen runkoverkko, OSPF ja IP Unnumbered
+
+Rakennukset on yhdistetty toisiinsa **Full Mesh** -verkkotopologialla, jonka yli ajetaan dynaamista reititysprotokollaa **OSPFv2**. Runkoverkko on konfiguroitu ilman linkkien omia IPv4 osoitteita. Sen sijaan jokainen linkki hyödyntää `ip unnumbered loopback 0` -menetelmää ja lainaa **loopback 0** -interfacen IPv4 osoitetta. Jotta menetelmä toimisi, linkkien **OSPF**-verkkotyypiksi on konfiguroitu **point-to-point**. Tällä tavoin ei tarvitse suunnitella jokaiselle linkille transit-verkkoa, ja Distribution-laitteiden reitityspöydät säilyvät yksinkertaisina.
