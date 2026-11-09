@@ -1,0 +1,74 @@
+! ASW5 Running Konfiguraatio
+!
+version 15.2
+hostname ASW5
+!
+no ip routing
+no ip domain-lookup
+ip domain-name campus.lab
+!
+! === Linkit Distribution-tasolle ===
+interface Port-channel1
+ description LAG Link to DSW2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface Port-channel2
+ description LAG Link to DSW3
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface GigabitEthernet0/0
+ description Link to DSW2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/1
+ description Link to DSW2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/2
+ description Link to DSW3
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface GigabitEthernet0/3
+ description Link to DSW3
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+! === FreeRADIUS-palvelin Access-portti ===
+interface GigabitEthernet3/3
+ description Access Link to SRV1
+ switchport access vlan 40
+ switchport mode access
+ spanning-tree portfast edge
+ spanning-tree bpduguard enable
+!
+! === MANAGEMENT ===
+interface Vlan30
+ description Management SVI
+ ip address 172.16.2.187 255.255.255.192
+!
+ip default-gateway 172.16.2.129
+!
+mac address-table aging-time 14400
+!
+end

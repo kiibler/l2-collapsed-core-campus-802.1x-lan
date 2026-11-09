@@ -1,0 +1,106 @@
+! ASW3 Running Konfiguraatio
+!
+version 15.2
+hostname ASW3
+!
+aaa new-model
+!
+! === Server Group konfiguraatio ===
+aaa group server radius SG
+ server name SRV1
+ server name SRV2
+ ip radius source-interface Vlan30
+!
+aaa authentication dot1x default group SG
+aaa authorization exec default group SG if-authenticated 
+aaa authorization network default group SG if-authenticated 
+aaa accounting dot1x default start-stop group SG
+aaa accounting exec default start-stop group SG
+aaa accounting network default start-stop group SG
+!
+no ip routing
+no ip domain-lookup
+ip domain-name campus.lab
+!
+dot1x system-auth-control
+!
+! === Linkit Distribution-tasolle ===
+interface Port-channel1
+ description LAG Link to DSW1
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface Port-channel2
+ description LAG Link to DSW2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface GigabitEthernet0/0
+ description Link to DSW1
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/1
+ description Link to DSW1
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface GigabitEthernet0/2
+ description Link to DSW2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface GigabitEthernet0/3
+ description Link to DSW2
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+! === 802.1X-portti ===
+interface GigabitEthernet2/2
+ description Dot1X Access Interface
+ switchport access vlan 999
+ switchport mode access
+ authentication event fail retry 3 action authorize vlan 999
+ authentication event no-response action authorize vlan 20
+ authentication order dot1x
+ authentication priority dot1x
+ authentication port-control auto
+ dot1x pae authenticator
+ spanning-tree portfast edge
+ spanning-tree bpduguard enable
+!
+! === MANAGEMENT ===
+interface Vlan30
+ description Management SVI
+ ip address 172.16.1.186 255.255.255.192
+!
+ip default-gateway 172.16.1.129
+!
+! === RADIUS-palvelimet ===
+radius server SRV1
+ address ipv4 172.16.1.252 auth-port 1812 acct-port 1813
+ key 7 <HIDDEN_RADIUS_SECRET>
+!         
+radius server SRV2
+ address ipv4 172.16.2.252 auth-port 1812 acct-port 1813
+ key 7 <HIDDEN_RADIUS_SECRET>
+!
+mac address-table aging-time 14400
+!
+end
