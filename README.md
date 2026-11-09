@@ -21,4 +21,13 @@ Vikasietoisuuden ja kaistanleveyden parantamiseksi, Access- ja Distribution-taso
 
 ## Spanning Tree Protocol
 
-Kytkimillä käytetään Ciscon **Rapid PVST+** -protokollaa. Rakennusten sisäiseen verkkoon ei muodostu L2-silmukoita, koska Distribution-kytkimet on yhdistetty toisiinsa L3-porteilla. Tästä huolimatta **Root Bridge** -roolit on jaettu siten, että rakennusten sisällä kumpikin Distribution-kytkin on kahden VLANin **Root Bridge**.
+Kytkimillä käytetään Ciscon **Rapid PVST+** -protokollaa. Rakennusten sisäiseen verkkoon ei muodostu L2-silmukoita, koska Distribution-kytkimet on yhdistetty toisiinsa L3-porteilla. Tästä huolimatta **Root Bridge** -roolit on jaettu siten, että rakennusten sisällä kumpikin Distribution-kytkin on kahden VLANin **Root Bridge**. Esimerkiksi: Rakennuksen 1 DSW1-laite toimii **Root Bridge** -roolissa VLAN:lle 10 ja 20.
+
+## Päätelaitteiden redundanttinen Default Gateway ja HSRP
+
+Päätelaitteiden Default Gatewayn vikasietoisuus on toteutettu ottamalla käyttöön **HSRP**. Kuten **STP Root Bridge** -roolit, myös **HSRP Active** -roolit on jaettu Distribution-kytkimille siten, että kumpikin kytkin toimii *HSRP Active* -roolissa kahdelle VLAN:lle. Esimerkiksi: Rakennuksen 1 DSW1-laite toimii VLAN 10:n ja 20:n **HSRP Active** -laitteena. STP ja HSRP roolit on jaettu siten, että L2-tason ja L3-tason optimaaliset reitit täsmäävät toistensa kanssa. Näin myös saavutetaan liikenteen kuormanjakausta verkon sisällä, koska eri VLANien liikenteet jakaantuvat Distribution-tason kytkimien välillä.
+
+- **VLAN 10 (STAFF) HSRP VIP:** `172.16.X.1/26`
+- **VLAN 20 (GUEST) HSRP VIP:** `172.16.X.65/26`
+- **VLAN 30 (MANAGEMENT) HSRP VIP**: `172.16.X.129/26`
+- **VLAN 40 (SERVICES) HSRP VIP**: `172.16.X.193/26`
