@@ -35,3 +35,25 @@ Päätelaitteiden Default Gatewayn vikasietoisuus on toteutettu ottamalla käytt
 ## Rakennusten välinen runkoverkko, OSPF ja IP Unnumbered
 
 Rakennukset on yhdistetty toisiinsa **Full Mesh** -verkkotopologialla, jonka yli ajetaan dynaamista reititysprotokollaa **OSPFv2**. Runkoverkko on konfiguroitu ilman linkkien omia IPv4 osoitteita. Sen sijaan jokainen linkki hyödyntää `ip unnumbered loopback 0` -menetelmää ja lainaa **loopback 0** -interfacen IPv4 osoitetta. Jotta menetelmä toimisi, linkkien **OSPF**-verkkotyypiksi on konfiguroitu **point-to-point**. Tällä tavoin ei tarvitse suunnitella jokaiselle linkille transit-verkkoa, ja Distribution-laitteiden reitityspöydät säilyvät yksinkertaisina.
+
+## 802.1X ja FreeRadius
+
+Verkon porttikohtainen tietoturva on toteutettu hyödyntämällä 802.1X-standardia yhdessä kahden Debian-pohjaisen FreeRadius-palvelimen kanssa.
+
+### 1. 802.1X-portin elinkaari ja karanteeni VLAN
+- Ennen autentikoitumisprosessin alkua, portti on sijoitettu karanteeni VLAN:iin 999 (UNAUTH). Tässä tilassa kytkin sallii ainoastaan **EAPOL**-liikenteen.
+
+### 2. Autentikoitumisprosessi ja dynaaminen VLAN-määritys
+- Kun Windows 11 -päätelaite kytkeytyy porttiin, autentikoitumisprosessi aloitetaan, joko kytkimen **EAP-Request/Identity**-viestillä tai Windows 11 -päätelaitteen **EAPOL Start**-viestillä. Prosessi on konfiguroitu hyödyntämään **PEAP/MSCHAPv2** protokollaa.
+- Kytkin toimii **Authenticator**-roolissa päätelaitteen ja FreeRadius-palvelimen kanssa, joka on sijoitettu VLANiin 40 (SERVICES).
+- Onnistuneen autentikaation jälkeen FreeRadius-palvelin palauttaa **Access-Accept**-viestin mukana tarvittavat tiedot, jotka ohjaavat portin oikeaan VLANiin:
+    - *Tunnel-Type = VLAN*
+    - *Tunnel-Medium-Type = IEEE-802*
+    - *Tunnel-Private-Group-Id = 10*
+- Kytkin siirtää portin oikeaan VLANiin ja liikenne portin läpi sallitaan.
+
+### 3. GUEST VLAN
+- Jos päätelaite ei tue autentikointia eikä vastaa kytkimen lähettämiin **EAP**-viesteihin, portti siirretään VLANiin 20 (GUEST). Tämän VLANin tarkoitus on antaa päätelaitteille mahdollisuus rajattuun pääsyyn verkon resursseihin, esimerkiksi mahdollisuus ladata 802.1X-asiakasohjelmisto.
+
+### 4. Epäonnistunut autentikaatio
+- Jos päätelaitteen autentikoitumisprosessi epäonnistuu, kytkin siirtää portin VLANiin 999 (UNAUTH). Autentikoitumisprosessi alkaa alusta, kun päätelaite lähettää **EAPOL Start** -viestin kytkimelle.
