@@ -57,3 +57,10 @@ Verkon porttikohtainen tietoturva on toteutettu hyödyntämällä 802.1X-standar
 
 ### 4. Epäonnistunut autentikaatio
 - Jos päätelaitteen autentikoitumisprosessi epäonnistuu, kytkin siirtää portin VLANiin 999 (UNAUTH). Autentikoitumisprosessi alkaa alusta, kun päätelaite lähettää **EAPOL Start** -viestin kytkimelle.
+
+## Validaatiot
+
+Verkon toimivuuden, porttikohtaisen autentikaation ja reitityksen validointiin käytetyt komennot ja tulosteet löytyvät `validaatiot/`-kansiosta:
+1. [802.1X ja Radius](validaatiot/802.1X-validaatiot.md)
+2. [STP ja HSRP](validaatiot/stp-hsrp-validaatiot.md)
+3. [OSPF ja reititys](validaatiot/ospf-validaatiot.md)
