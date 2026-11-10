@@ -1,4 +1,4 @@
-# HSRP-gatewayredundanssi ja STP Juurikytkimet
+# HSRP ja STP Root Bridge
 
 ### 1. DSW1 HSRP Active VLAN 10/20
 
